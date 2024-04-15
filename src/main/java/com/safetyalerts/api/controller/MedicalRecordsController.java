@@ -26,15 +26,17 @@ public class MedicalRecordsController {
 	@Autowired
 	public MedicalRecordsController(MedicalRecordsInterface theMedicalRecordsInterface) {
 		medicalRecordsInterface = theMedicalRecordsInterface;
-	} 
+	}
 
+	// Get medical records
 	@GetMapping("/medicalrecords")
 	public Iterable<MedicalRecords> getMedicalRecords() {
 		return medicalRecordsInterface.getMedicalRecords();
 	}
 
+	// Get medical records by Id
 	@GetMapping("/medicalrecords/{id}")
-	public MedicalRecords getMedicalRecords(@PathVariable("id") Integer id) {
+	public MedicalRecords getMedicalRecordsById(@PathVariable("id") Integer id) {
 		Optional<MedicalRecords> optionalMedicalRecords = medicalRecordsInterface.getMedicalRecordsById(id);
 		if (optionalMedicalRecords.isPresent()) {
 			return optionalMedicalRecords.get();
@@ -43,12 +45,14 @@ public class MedicalRecordsController {
 		}
 	}
 
+	// Create a medical records
 	@PostMapping("/medicalrecords/create")
 	public MedicalRecords createMedicalRecords(@RequestBody MedicalRecords medicalRecords) {
 		logger.info("Received MedicalRecords object: {}", medicalRecords);
 		return medicalRecordsInterface.createMedicalRecords(medicalRecords);
 	}
 
+	// Update a medical records by Id
 	@PutMapping("/medicalrecords/{id}")
 	public MedicalRecords updateMedicalRecords(@PathVariable Integer id, @RequestBody MedicalRecords theMedicalRecord) {
 		Optional<MedicalRecords> optionalMedicalRecord = medicalRecordsInterface.getMedicalRecordsById(id);
@@ -63,13 +67,14 @@ public class MedicalRecordsController {
 		return medicalRecordsInterface.createMedicalRecords(existingMedicalRecords);
 	}
 
+	// Delete a medical records by given firstName and lastName
 	@DeleteMapping("/medicalrecords/{firstName}/{lastName}")
 	public ResponseEntity<Void> deleteMedicalrecords(@PathVariable String firstName, @PathVariable String lastName) {
 		boolean deleted = medicalRecordsInterface.deleteMedicalRecords(firstName, lastName);
 		if (deleted) {
 			return ResponseEntity.noContent().build();
 		} else {
-			return ResponseEntity.notFound().build(); 
+			return ResponseEntity.notFound().build();
 		}
 	}
 }

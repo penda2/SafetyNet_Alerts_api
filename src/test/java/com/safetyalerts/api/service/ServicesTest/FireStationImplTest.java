@@ -1,49 +1,64 @@
 package com.safetyalerts.api.service.ServicesTest;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import com.safetyalerts.api.model.FireStation;
 import com.safetyalerts.api.model.Person;
 import com.safetyalerts.api.repository.FireStationRepository;
 import com.safetyalerts.api.service.Interfaces.FireStationInterface;
+import com.safetyalerts.api.service.Services.FireStationImpl;
 
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class FireStationImplTest {
 
 	@Mock
 	private FireStationRepository fireStationRepository;
 
+	@InjectMocks
+	private FireStationImpl fireStationImpl;
+
 	@Mock
 	private FireStationInterface fireStationInterface;
 
 	@Mock
-	private FireStation fireStation; 
+	private FireStation fireStation;
 
-	@Mock
-	private Person person;
+	public List<FireStation> fireStations;
+
+	public List<Person> persons;
 
 	@BeforeEach
 	public void setUp() {
-		fireStation = new FireStation();
-		fireStation.setFirestationId(1); 
+		FireStation fireStation = new FireStation();
 		fireStation.setAddress("1509 Culver St");
-		fireStation.setStation(2L);
+		fireStation.setStation(3L);
 
-		List<Person> persons = new ArrayList<>();
+		FireStation fireStation2 = new FireStation();
+		fireStation2.setAddress("951 LoneTree Rd");
+		fireStation2.setStation(2L);
+
+		fireStations = Arrays.asList(fireStation, fireStation2);
 
 		Person person1 = new Person();
 		person1.setFirstName("Eric");
@@ -63,48 +78,93 @@ public class FireStationImplTest {
 		person2.setPhone("123-456-7890");
 		person2.setEmail("alice@email.com");
 
-		persons.add(person1);
-		persons.add(person2);
-
-		fireStation.setPersons(persons);
+		persons = Arrays.asList(person1, person2);
 	}
 
 	@Test
 	public void testCreateFireStation() {
-		when(fireStationInterface.createFireStation(fireStation)).thenReturn(fireStation);
-		FireStation savedFireStation = fireStationInterface.createFireStation(fireStation);
-		verify(fireStationInterface, times(1)).createFireStation(savedFireStation);
-		assertEquals(fireStation, savedFireStation);
+		FireStation fireStation = new FireStation();
+		fireStation.setFirestationId(1);
+		fireStation.setAddress("947 E. Rose Dr");
+		fireStation.setStation(1L);
+
+		when(fireStationRepository.save(fireStation)).thenReturn(fireStation);
+		FireStation savedFireStation = fireStationRepository.save(fireStation);
+		verify(fireStationRepository, times(1)).save(fireStation);
+		assertEquals(savedFireStation, fireStationImpl.createFireStation(savedFireStation));
 	}
 
 	@Test
 	public void testGetFireStations() {
-		List<FireStation> createdFireStations = new ArrayList<FireStation>();
-		createdFireStations.add(new FireStation());
-		when(fireStationInterface.getFireStations()).thenReturn(createdFireStations);
-		Iterable<FireStation> result = fireStationInterface.getFireStations();
-		assertEquals(createdFireStations, result);
+		when(fireStationRepository.findAll()).thenReturn(fireStations);
+		Iterable<FireStation> result = fireStationImpl.getFireStations();
+		assertEquals(fireStations, result);
 	}
 
 	@Test
 	public void testGetFireStationById() {
-		when(fireStationInterface.getFireStationById(1)).thenReturn(Optional.of(fireStation));
-		Optional<FireStation> result = fireStationInterface.getFireStationById(1);
+		FireStation fireStation = new FireStation();
+		fireStation.setFirestationId(1);
+		fireStation.setAddress("1509 Culver St");
+		fireStation.setStation(3L);
+
+		when(fireStationRepository.findById(1)).thenReturn(Optional.of(fireStation));
+		Optional<FireStation> result = fireStationImpl.getFireStationById(1);
 		assertTrue(result.isPresent());
 		assertEquals(fireStation, result.get());
 	}
 
 	@Test
-	public void testGetPersonsByStationNumber() {
-		List<Person> expectedPersons = new ArrayList<>();
-        when(fireStationInterface.getPersonsByStationsNumber(2L)).thenReturn(expectedPersons);
-        List<Person> actualPersons = fireStationInterface.getPersonsByStationsNumber(2L);
-        assertEquals(expectedPersons, actualPersons);
+	public void testDeleteFireStation() {
+		FireStation fireStation = new FireStation();
+		fireStation.setFirestationId(1);
+		fireStation.setAddress("1509 Culver St");
+		fireStation.setStation(3L);
+
+		when(fireStationRepository.existsById(1)).thenReturn(true);
+
+		boolean result = fireStationImpl.deleteFireStation(1);
+
+		assertTrue(result);
+		verify(fireStationRepository).deleteById(1);
 	}
 
 	@Test
-	public void testDeleteFireStation() {
-		when(fireStationInterface.getFireStationById(1)).thenReturn(Optional.ofNullable(fireStation));
-		assertAll(() -> fireStationInterface.getFireStationById(1));
+	public void testFireStationToDeleteNotFound() {
+		when(fireStationRepository.existsById(1)).thenReturn(false);
+
+		boolean result = fireStationImpl.deleteFireStation(1);
+
+		assertFalse(result);
+		verify(fireStationRepository, never()).deleteById(anyInt());
+	}
+
+	@Test
+	public void testGetPersonsByStationNumber() {
+		Long stationNumber = 3L;
+		FireStation fireStation1 = new FireStation();
+		fireStation1.setStation(3L);
+
+		fireStation1.setPersons(persons);
+
+		when(fireStationRepository.findAll()).thenReturn(Arrays.asList(fireStation1));
+
+		List<Person> persons = fireStationImpl.getPersonsByStationsNumber(stationNumber);
+
+		assertEquals(2, persons.size());
+	}
+
+	@Test
+	public void testGetFireStationByStationNumber() {
+		Long stationNumber = 3L;
+		FireStation fireStation = new FireStation();
+		fireStation.setFirestationId(1);
+		fireStation.setAddress("1509 Culver St");
+		fireStation.setStation(3L);
+
+		when(fireStationRepository.findByStation(stationNumber)).thenReturn(Optional.of(fireStation));
+		FireStation result = fireStationImpl.getFireStationByStationNumber(stationNumber);
+		assertNotNull(result);
+		assertEquals(fireStation, result);
 	}
 }

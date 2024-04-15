@@ -24,14 +24,16 @@ public class PersonController {
 
 	@Autowired
 	public PersonController(PersonServiceInterface thePersonServiceInterface) {
-		personServiceInterface = thePersonServiceInterface; 
+		personServiceInterface = thePersonServiceInterface;
 	}
 
+	// Get person 
 	@GetMapping("/person")
 	public Iterable<Person> getPersons() {
 		return personServiceInterface.getPersons();
 	}
 
+	// Get person by Id
 	@GetMapping("/person/{id}")
 	public Person getPersonById(@PathVariable("id") Integer id) {
 		Optional<Person> person = personServiceInterface.getPersonById(id);
@@ -42,12 +44,14 @@ public class PersonController {
 		}
 	}
 
+	// Create a person 
 	@PostMapping("/person")
 	public Person createPerson(@RequestBody Person person) {
 		logger.info("Received person object: {}", person);
 		return personServiceInterface.createPerson(person);
 	}
 
+	// Update a person by Id
 	@PutMapping("/person/{id}")
 	public Person updatePerson(@PathVariable Integer id, @RequestBody Person person) {
 		Optional<Person> optionalPerson = personServiceInterface.getPersonById(id);
@@ -64,6 +68,7 @@ public class PersonController {
 		return personServiceInterface.createPerson(existingPerson);
 	}
 
+	// Delete a person method
 	@DeleteMapping("/person/{firstName}/{lastName}")
 	public ResponseEntity<Void> deletePerson(@PathVariable String firstName, @PathVariable String lastName) {
 		boolean deleted = personServiceInterface.deletePerson(firstName, lastName);

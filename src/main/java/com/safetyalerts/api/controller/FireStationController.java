@@ -95,7 +95,7 @@ public class FireStationController {
 	// Get list of persons by station number + count of number of children and
 	// adults
 	@GetMapping("/firestationNumber/{station}")
-	public ResponseEntity<Map<String, Object>> getPersonsWithMedicalRecords(@PathVariable Long station) {
+	public Map<String, Object> getPersonsByStationsNumber(@PathVariable Long station) {
 		List<Person> persons = fireStationInterface.getPersonsByStationsNumber(station);
 		List<Map<String, Object>> personsList = new ArrayList<>();
 		int numberOfAdults = 0;
@@ -124,12 +124,12 @@ public class FireStationController {
 		response.put("persons", personsList);
 		response.put("numberOfAdults", numberOfAdults);
 		response.put("numberOfChildren", numberOfChildren);
-		return ResponseEntity.ok(response);
+		return response;
 	}
 
 	// Get list of children by address
 	@GetMapping("/childAlert/{address}")
-	public ResponseEntity<Map<String, Object>> getChildsWithAgeByAddress(@PathVariable String address) {
+	public Map<String, Object> getChildsWithAgeByAddress(@PathVariable String address) {
 		Iterable<Person> persons = personServiceInterface.getPersons();
 		List<Map<String, Object>> childrenList = new ArrayList<>();
 		int numberOfChildren = 0;
@@ -157,31 +157,11 @@ public class FireStationController {
 		Map<String, Object> response = new HashMap<>();
 		response.put("children", childrenList);
 		response.put("numberOfChildren", numberOfChildren);
-		return ResponseEntity.ok(response);
+		return response;
 	}
 
-	
-    @GetMapping("/phoneAlert/{station}")
-    public Map<String, Object> getPhoneNumbersByStation(@PathVariable Long station) {
-        Iterable<Person> persons = personServiceInterface.getPersons();
-        Map<Long, List<String>> phoneNumbersByStation = new HashMap<>();
-        for (Person person : persons) {
-            FireStation fireStation = person.getFireStation();
-            if (fireStation != null && fireStation.getStation().equals(station)) {
-                String phoneNumber = person.getPhone();
-                List<String> phoneNumbers = phoneNumbersByStation.getOrDefault(station, new ArrayList<>());
-                phoneNumbers.add(phoneNumber);
-                phoneNumbersByStation.put(station, phoneNumbers);
-            }
-        }
-        Map<String, Object> response = new HashMap<>();
-        response.put("phones", phoneNumbersByStation);
-        return response;
-    }
-	// Get the list of person's phone numbers by station
-	/*
 	@GetMapping("/phoneAlert/{station}")
-	public ResponseEntity<Map<String, Object>> getPhoneNumbersByStation(@PathVariable Long station) {
+	public Map<String, Object> getPhoneNumbersByStation(@PathVariable Long station) {
 		Iterable<Person> persons = personServiceInterface.getPersons();
 		Map<Long, List<String>> phoneNumbersByStation = new HashMap<>();
 		for (Person person : persons) {
@@ -195,16 +175,14 @@ public class FireStationController {
 		}
 		Map<String, Object> response = new HashMap<>();
 		response.put("phones", phoneNumbersByStation);
-		return ResponseEntity.ok(response);
-	
+		return response;
 	}
-	*/
-    
-    
+
 	// Get the list of persons from an address and the number of their corresponding
 	// station
+
 	@GetMapping("/fire/{address}")
-	public ResponseEntity<Map<String, Object>> getPersonsWithAgeByAddress(@PathVariable String address) {
+	public Map<String, Object> getPersonsWithAgeByAddress(@PathVariable String address) {
 		Iterable<Person> persons = personServiceInterface.getPersons();
 		List<Map<String, Object>> personsByAddress = new ArrayList<>();
 
@@ -231,50 +209,11 @@ public class FireStationController {
 		}
 		Map<String, Object> response = new HashMap<>();
 		response.put("persons", personsByAddress);
-		return ResponseEntity.ok(response);
+		return response;
 	}
 
-	@GetMapping("/flood/stations/{station}")	
+	@GetMapping("/flood/stations/{station}")
 	public List<Map<String, Object>> getPersonsInAddress(@PathVariable Long station) {
-        Iterable<Person> persons = personServiceInterface.getPersons();
-        Map<String, List<Map<String, Object>>> personsByAddress = new HashMap<>();
-
-        for (Person person : persons) {
-            FireStation fireStation = person.getFireStation();
-
-            if (fireStation != null && fireStation.getStation().equals(station)) {
-                MedicalRecords medicalRecords = person.getMedicalRecords();
-
-                if (medicalRecords != null) {
-                    LocalDate birthdate = LocalDate.parse(medicalRecords.getBirthDate(),
-                            DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                    Period age = Period.between(birthdate, LocalDate.now());
- 
-                    StringBuilder personInfoBuilder = new StringBuilder();
-                    personInfoBuilder.append(person.getFirstName()).append(" ").append(person.getLastName());
-                    personInfoBuilder.append(" - Medications: ")
-                            .append(String.join(", ", medicalRecords.getMedications()));
-                    personInfoBuilder.append(", Allergies: ").append(String.join(", ", medicalRecords.getAllergies()));
-                    String personInfo = personInfoBuilder.toString();
-
-                    Map<String, Object> personMap = new LinkedHashMap<>();
-                    personMap.put("personInfo", personInfo);
-                    personMap.put("phone", person.getPhone());
-                    personMap.put("age", age.getYears());
-
-                    String address = person.getAddress();
-                    personsByAddress.computeIfAbsent(address, k -> new ArrayList<>()).add(personMap);
-                }
-            }
-        }
-
-        // Convertir la carte en liste avant de la retourner
-        List<Map<String, Object>> personsList = new ArrayList<>();
-        personsByAddress.forEach((address, personList) -> personsList.addAll(personList));
-        return personsList;
-    
-
-/*	public ResponseEntity<Map<String, Object>> getPersonsInAddress(@PathVariable Long station) {
 		Iterable<Person> persons = personServiceInterface.getPersons();
 		Map<String, List<Map<String, Object>>> personsByAddress = new HashMap<>();
 
@@ -307,10 +246,9 @@ public class FireStationController {
 			}
 		}
 
-		Map<String, Object> response = new HashMap<>();
-		response.put("personsByAddress", personsByAddress);
-		return ResponseEntity.ok(response);
-		*/
+		List<Map<String, Object>> personsList = new ArrayList<>();
+		personsByAddress.forEach((address, personList) -> personsList.addAll(personList));
+		return personsList;
 	}
 
 	// get list of persons by firstName + lastName
@@ -320,7 +258,7 @@ public class FireStationController {
 		Iterable<Person> persons = personServiceInterface.getPersons();
 		List<Map<String, Object>> personsByName = new ArrayList<>();
 		for (Person person : persons) {
-			if (person.getLastName().equalsIgnoreCase(lastName)) { 
+			if (person.getLastName().equalsIgnoreCase(lastName)) {
 				MedicalRecords medicalRecords = person.getMedicalRecords();
 				if (medicalRecords != null) {
 					LocalDate birthdate = LocalDate.parse(medicalRecords.getBirthDate(),
@@ -343,20 +281,19 @@ public class FireStationController {
 
 	// get filtered/unique persons email by city
 	@GetMapping("/communityEmail/{city}")
-	    public List<Map<String, Object>> getEmailsByCity(@PathVariable String city) {
-	        Iterable<Person> persons = personServiceInterface.getPersons();
-	        Set<String> uniqueEmails = new HashSet<>();
-	        List<Map<String, Object>> personsEmailByCity = new ArrayList<>();
+	public List<Map<String, Object>> getEmailsByCity(@PathVariable String city) {
+		Iterable<Person> persons = personServiceInterface.getPersons();
+		Set<String> uniqueEmails = new HashSet<>();
+		List<Map<String, Object>> personsEmailByCity = new ArrayList<>();
 
-	        for (Person person : persons) {
-	            if (person.getCity().equals(city) && !uniqueEmails.contains(person.getEmail())) {
-	                Map<String, Object> emailMap = new LinkedHashMap<>();
-	                emailMap.put("email", person.getEmail());
-	                personsEmailByCity.add(emailMap);
-	                uniqueEmails.add(person.getEmail());
-	            }
-	        }
-	        return personsEmailByCity;
-	    }
-	
+		for (Person person : persons) {
+			if (person.getCity().equals(city) && !uniqueEmails.contains(person.getEmail())) {
+				Map<String, Object> emailMap = new LinkedHashMap<>();
+				emailMap.put("email", person.getEmail());
+				personsEmailByCity.add(emailMap);
+				uniqueEmails.add(person.getEmail());
+			}
+		}
+		return personsEmailByCity;
+	}
 }

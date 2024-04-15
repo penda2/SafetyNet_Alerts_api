@@ -9,8 +9,8 @@ import com.safetyalerts.api.model.Person;
 public interface FireStationInterface {
 	public FireStation createFireStation(FireStation theFireStation );
 	public Iterable<FireStation> getFireStations();
-	public Optional<FireStation> getFireStationById(int theId);
-	public boolean deleteFireStation(int theId);
+	public Optional<FireStation> getFireStationById(Integer theId);
+	public boolean deleteFireStation(Integer theId);
 	public FireStation getFireStationByStationNumber(Long station);
 	List<Person> getPersonsByStationsNumber(Long station);
 }

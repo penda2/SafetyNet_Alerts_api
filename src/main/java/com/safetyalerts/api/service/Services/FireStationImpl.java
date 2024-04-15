@@ -1,10 +1,8 @@
 package com.safetyalerts.api.service.Services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +22,7 @@ public class FireStationImpl implements FireStationInterface {
 	@Override
 	public FireStation createFireStation(FireStation theFireStation) {
 		FireStation savedFireStation = fireStationRepository.save(theFireStation);
-		return savedFireStation; 
+		return savedFireStation;
 	}
 
 	@Override
@@ -33,12 +31,12 @@ public class FireStationImpl implements FireStationInterface {
 	}
 
 	@Override
-	public Optional<FireStation> getFireStationById(int theId) {
+	public Optional<FireStation> getFireStationById(Integer theId) {
 		return fireStationRepository.findById(theId);
 	}
 
 	@Override
-	public boolean deleteFireStation(int theId) {
+	public boolean deleteFireStation(Integer theId) {
 		if (fireStationRepository.existsById(theId)) {
 			fireStationRepository.deleteById(theId);
 			return true;
@@ -51,13 +49,17 @@ public class FireStationImpl implements FireStationInterface {
 		return fireStationRepository.findByStation(station)
 				.orElseThrow(() -> new IllegalArgumentException("station not found for station number" + station));
 	}
-	
+
 	@Override
 	public List<Person> getPersonsByStationsNumber(Long station) {
 		Iterable<FireStation> allFireStations = fireStationRepository.findAll();
-		List<Person> persons = StreamSupport.stream(allFireStations.spliterator(), false)
-				.filter(fireStation -> fireStation.getStation() == station)
-				.flatMap(fireStation -> fireStation.getPersons().stream()).collect(Collectors.toList());
+		List<Person> persons = new ArrayList<>();
+
+		for (FireStation fireStation : allFireStations) {
+			if (fireStation.getStation() == station && fireStation.getPersons() != null) {
+				persons.addAll(fireStation.getPersons());
+			}
+		}
 		return persons;
 	}
 }

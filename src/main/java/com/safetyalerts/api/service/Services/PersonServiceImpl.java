@@ -31,13 +31,13 @@ public class PersonServiceImpl implements PersonServiceInterface {
 	}
 
 	@Override
-	public Optional<Person>getPersonById(Integer id) {
+	public Optional<Person> getPersonById(Integer id) {
 		return personRepository.findById(id);
 	}
 
 	@Override
 	public boolean deletePerson(String firstName, String lastName) {
-		Optional<Person> optionalPerson = personRepository.findByFirstNameAndLastName(firstName,lastName);
+		Optional<Person> optionalPerson = personRepository.findByFirstNameAndLastName(firstName, lastName);
 		if (optionalPerson.isPresent()) {
 			personRepository.deleteById(optionalPerson.get().getId());
 			return true;
@@ -46,13 +46,11 @@ public class PersonServiceImpl implements PersonServiceInterface {
 	}
 
 	@Override
-	public  Iterable<Person> getChildrenByAddress(String address) {
+	public Iterable<Person> getChildrenByAddress(String address) {
 		List<Person> persons = personRepository.findByAddress(address);
 		if (!persons.isEmpty()) {
-			 personRepository.findByAddress(address);
-
+			personRepository.findByAddress(address);
 		}
 		return persons;
-		 
 	}
 }

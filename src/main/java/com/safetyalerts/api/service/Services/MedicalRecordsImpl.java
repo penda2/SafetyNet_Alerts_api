@@ -42,9 +42,7 @@ public class MedicalRecordsImpl implements MedicalRecordsInterface {
 		if (optionalMedicalrecord.isPresent()) {
 			medicalRecordsRepository.deleteById(optionalMedicalrecord.get().getId());
 			return true;
-
 		} else
 			return false;
 	}
-
 }

@@ -135,7 +135,7 @@ public class MedicalRecordsRepositoryTest {
 	public void testDeleteMedicalRecords() {
 		MedicalRecords medicalRecords = new MedicalRecords();
 		medicalRecords.setFirstName("Eric");
-		medicalRecords.setLastName("Cadigan"); 
+		medicalRecords.setLastName("Cadigan");
 		medicalRecords.setBirthDate("08/06/1945");
 		String[] medications = { "tradoxidine:400mg" };
 		medicalRecords.setMedications(medications);
@@ -144,11 +144,9 @@ public class MedicalRecordsRepositoryTest {
 		medicalRecordsRepository.save(medicalRecords);
 
 		medicalRecordsRepository.deleteById(medicalRecords.getId());
-		;
 
 		Optional<MedicalRecords> deletedMedicalRecords = medicalRecordsRepository.findById(medicalRecords.getId());
 
 		assertThat(deletedMedicalRecords).isEmpty();
 	}
-
 }

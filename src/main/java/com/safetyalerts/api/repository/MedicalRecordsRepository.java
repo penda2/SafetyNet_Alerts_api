@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 import com.safetyalerts.api.model.MedicalRecords;
 
 @Repository
-public interface MedicalRecordsRepository extends CrudRepository<MedicalRecords, Integer>{
+public interface MedicalRecordsRepository extends CrudRepository<MedicalRecords, Integer> {
+
 	Optional<MedicalRecords> findByFirstNameAndLastName(String firstName, String lastName);
 
 }

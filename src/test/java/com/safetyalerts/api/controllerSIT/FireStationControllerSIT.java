@@ -36,7 +36,7 @@ public class FireStationControllerSIT {
 
 	@Autowired
 	private MockMvc mockMvc;
- 
+
 	@MockBean
 	private FireStationInterface fireStationInterface;
 
@@ -47,7 +47,7 @@ public class FireStationControllerSIT {
 	private MedicalRecordsInterface medicalRecordsInterface;
 
 	private List<Person> persons;
-	
+
 	private List<FireStation> fireStationList;
 
 	@BeforeEach
@@ -59,7 +59,7 @@ public class FireStationControllerSIT {
 		FireStation fireStation2 = new FireStation();
 		fireStation2.setAddress("1509 Culver St");
 		fireStation2.setStation(3L);
-		
+
 		fireStationList = Arrays.asList(fireStation, fireStation2);
 
 		MedicalRecords medicalRecords = new MedicalRecords();
@@ -208,5 +208,4 @@ public class FireStationControllerSIT {
 
 		verify(fireStationInterface).getPersonsByStationsNumber(2L);
 	}
-
 }

@@ -81,7 +81,7 @@ public class PersonControllerSIT {
 		person.setZip(97451L);
 		person.setPhone("841-874-6544");
 		person.setEmail("jaboyd@email.com");
-		
+
 		when(personServiceInterface.createPerson(person)).thenReturn(person);
 
 		ObjectMapper objectMapper = new ObjectMapper();
